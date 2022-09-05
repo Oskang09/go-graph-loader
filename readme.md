@@ -105,8 +105,8 @@ import (
 func main() {
     resolver := // your resolver struct which contains all the root functions
 
-	manager := ggl.New()
-	manager.Schema(resolver)
+    manager := ggl.New()
+    manager.Schema(resolver)
 
     // define your custom validator
     // so with this you can validate your incoming 
