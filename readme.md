@@ -31,7 +31,7 @@ For model definition by default we're not exposing all the fields only the field
 
 ## Model Field Resolver
 
-As per model field resolver, we can overriding the original field resolver which just exposing the value, with this we can customize based on the source of value. For method signature as per [Tag & Method Signature](# Tag & Method Siganture) mentioned it can be only `context` value or with custom request arguments/
+As per model field resolver, we can overriding the original field resolver which just exposing the value, with this we can customize based on the source of value. For method signature as per [Tag & Method Signature](#tag--method-siganture) mentioned it can be only `context` value or with custom request arguments/
 
 ```go
 type Product struct {
