@@ -22,6 +22,10 @@ func main() {
 	result := graphql.Do(graphql.Params{
 		Schema: schema,
 		RequestString: `{ 
+			products(cursor: "some nested cursor") {
+				list
+				cursor
+			}
 			product(id: 1) {
 				info, name,
 				price(multiply: 100), 
@@ -228,8 +232,8 @@ func graphFieldsByType(ptrType reflect.Type) graphql.Fields {
 				graphFields[strcase.ToLowerCamel(graphName)] = gf
 			}
 		}
-
 	}
+
 	return graphFields
 }
 
