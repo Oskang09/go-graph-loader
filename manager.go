@@ -20,7 +20,12 @@ type executor struct {
 	variablesValues map[string]interface{}
 }
 
-func (loader *manager) LoadSchema(resolver interface{}) error {
+func (loader *manager) Validator(validator validator) error {
+	loader.validator = validator
+	return nil
+}
+
+func (loader *manager) Schema(resolver interface{}) error {
 	schema, err := loader.graphSchema(resolver)
 	if err != nil {
 		return err
