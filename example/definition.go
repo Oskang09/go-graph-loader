@@ -2,28 +2,29 @@ package main
 
 import (
 	"context"
+	"log"
 )
 
 // Model Resolver Object
 type Product struct {
-	ID    int64                  `ggl:"id"`
-	Name  string                 `ggl:"name"`
-	Info  string                 `ggl:"info"`
-	Price float64                `ggl:"price"`
-	JSON2 map[string]interface{} `ggl:"json2"`
-	Other Other                  `ggl:"other" `
+	ID    int64                  `gql:"id"`
+	Name  string                 `gql:"name"`
+	Info  string                 `gql:"info"`
+	Price float64                `gql:"price"`
+	JSON2 map[string]interface{} `gql:"json2"`
+	Other Other                  `gql:"other" `
 }
 
 type Other struct {
-	P3 string     `ggl:"p3"`
-	P4 string     `ggl:"p4"`
-	P5 []string   `ggl:"p5"`
-	P6 []NewOther `ggl:"p6"`
-	P8 *NewOther  `ggl:"p8"`
+	P3 string     `gql:"p3"`
+	P4 string     `gql:"p4"`
+	P5 []string   `gql:"p5"`
+	P6 []NewOther `gql:"p6"`
+	P8 *NewOther  `gql:"p8"`
 }
 
 type NewOther struct {
-	P7 string `ggl:"p7"`
+	P7 string `gql:"p7"`
 }
 
 // NameResolver Overriding
@@ -36,7 +37,7 @@ func (product *Product) GGL_Name(ctx context.Context, args *ProductNameArgs) (st
 
 // PriceResolver Overriding
 type ProductPriceArgs struct {
-	Multiply int `ggl:"multiply"`
+	Multiply int `gql:"multiply"`
 }
 
 func (product *Product) GGL_Price(ctx context.Context, args *ProductPriceArgs) (float64, error) {
@@ -58,11 +59,13 @@ func New() *Resolver {
 
 /* ProductResolver scalar type */
 type ProductArgs struct {
-	ID int `ggl:"id"`
+	Test bool `root:"_data"`
+	ID   int  `gql:"id"`
 }
 
 func (resolver *Resolver) Product(ctx context.Context, args *ProductArgs) (*Product, error) {
 	// do the data fetching via service / db call
+	log.Println("test", args.Test)
 	product := new(Product)
 	product.ID = 1
 	product.Price = 3.2
@@ -85,13 +88,14 @@ func (resolver *Resolver) Product(ctx context.Context, args *ProductArgs) (*Prod
 }
 
 type Pagination struct {
-	List   []*Product `ggl:"list"`
-	Cursor string     `ggl:"cursor"`
+	List   []*Product `gql:"list"`
+	Cursor string     `gql:"cursor"`
 }
 
 /* ProductsResolver scalar type */
 type ProductListArgs struct {
-	Cursor string `ggl:"cursor"`
+	Cursor string `gql:"cursor"`
+	Type   string `gql:"type"`
 }
 
 func (resolver *Resolver) Products(ctx context.Context, args *ProductListArgs) (*Pagination, error) {
