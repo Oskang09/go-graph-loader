@@ -126,6 +126,25 @@ func main() {
 }
 ```
 
-# Example
+# Documentation Tools
 
-More complicated example can be found at `example/` folders.
+For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types, you can found it at [magicdoc.mjs](magidoc.mjs). You can generate using this cli `magidoc generate -f schema/magidoc.mjs`
+
+```js
+export default {
+    introspection: {
+        type: 'file',
+        location: 'schema/schema.json',
+    },
+    website: {
+        template: 'carbon-multi-page',
+        options: {
+            queryGenerationFactories: {
+                'GoMap': '{}',
+                'GoArray': '[]',
+                'RawString': '',
+            }
+        }
+    },
+}
+```
