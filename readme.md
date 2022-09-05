@@ -37,7 +37,7 @@ As per model field resolver, we can overriding the original field resolver which
 type Product struct {
 	ID   int64  `gql:"id"`
 	Name string `gql:"name"`
-    Price float64 `gql:"price"`
+        Price float64 `gql:"price"`
 }
 
 type ProductNameArgs struct {
@@ -71,7 +71,7 @@ For custom field resolver, we're not overriding the original field resolver but 
 type Product struct {
 	ID   int64  `gql:"id"`
 	Name string `gql:"name"`
-    Price float64 `gql:"price"`
+        Price float64 `gql:"price"`
 }
 
 func (product *Product) GGL_NameWithPrice(ctx context.Context) (string, error) {
@@ -96,8 +96,8 @@ package main
 
 import (
 	"context"
-    "json"
-    "log"
+        "json"
+        "log"
 
 	ggl "github.com/Oskang09/go-graph-loader"
 )
