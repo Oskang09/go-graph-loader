@@ -128,7 +128,7 @@ func main() {
 
 # Documentation Tools
 
-For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types, you can found it at [magicdoc.mjs](magidoc.mjs). You can generate using this cli `magidoc generate -f schema/magidoc.mjs`
+For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types, you can found it at [magicdoc.mjs](magidoc.mjs). You can generate magidoc using this cli `magidoc generate -f schema/magidoc.mjs`, and about generating the schema in JSON would have a check on official graphql documentation [introspection](https://graphql.org/learn/introspection/)
 
 ```js
 export default {
