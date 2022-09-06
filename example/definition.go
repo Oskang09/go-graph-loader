@@ -29,6 +29,8 @@ type NewOther struct {
 
 // NameResolver Overriding
 type ProductNameArgs struct {
+	Test  [5]string         `gql:"test"`
+	Test2 map[string]string `gql:"test2"`
 }
 
 func (product *Product) GGL_Name(ctx context.Context, args *ProductNameArgs) (string, error) {

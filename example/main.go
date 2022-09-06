@@ -12,7 +12,11 @@ func main() {
 	resolver := New()
 
 	manager := ggl.New()
-	manager.Schema(resolver)
+	err := manager.RegisterSchema(resolver)
+	if err != nil {
+		panic(err)
+	}
+
 	result := manager.Do().
 		Query(`{ 
 			products(cursor: "some nested cursor", type: "HA") {
@@ -22,7 +26,11 @@ func main() {
 				cursor
 			}
 			product(id: 1) {
-				info, name,
+				info, 
+				name(
+					test: "[\"1\"]",
+					test2: "{\"a\":\"a\"}"
+				),
 				price(multiply: 100), 
 				priceInteger,
 				other { 
@@ -30,7 +38,9 @@ func main() {
 					p6 {
 						p7
 					},
-					p8
+					p8 {
+						p7
+					}
 				}, 
 				json2
 			} 

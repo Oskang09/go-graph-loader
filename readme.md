@@ -106,12 +106,12 @@ func main() {
     resolver := // your resolver struct which contains all the root functions
 
     manager := ggl.New()
-    manager.Schema(resolver)
+    manager.RegisterSchema(resolver)
 
     // define your custom validator
     // so with this you can validate your incoming 
     // parameters with your own validator
-    manager.Validator(nil)
+    manager.RegisterValidator(nil)
 
     result := manager.Do().
         Query("{ product { name } }"). // set your query string
@@ -143,6 +143,7 @@ export default {
                 'GoMap': '{}',
                 'GoArray': '[]',
                 'RawString': '',
+                'GoStringer': '',
             }
         }
     },

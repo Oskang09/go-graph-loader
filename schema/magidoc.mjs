@@ -10,6 +10,7 @@ export default {
                 'GoMap': '{}',
                 'GoArray': '[]',
                 'RawString': '',
+                'GoStringer': '',
             }
         }
     },
