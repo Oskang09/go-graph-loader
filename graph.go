@@ -12,8 +12,7 @@ import (
 )
 
 var (
-	rawScalarObjectIdentifier = "_raw"
-	rawScalarObjectFunc       = graphql.NewScalar(graphql.ScalarConfig{
+	rawScalarObjectFunc = graphql.NewScalar(graphql.ScalarConfig{
 		Name:        "RawString",
 		Description: "The `RawString` scalar type represents any type.",
 		Serialize: func(value interface{}) interface{} {
@@ -21,8 +20,7 @@ var (
 		},
 	})
 
-	goStringerScalarObjectIdentifier = "_string"
-	goStringerScalarObjectFunc       = graphql.NewScalar(graphql.ScalarConfig{
+	goStringerScalarObjectFunc = graphql.NewScalar(graphql.ScalarConfig{
 		Name:        "GoStringer",
 		Description: "The `GoStringer` scalar type represents Stringer type.",
 		Serialize: func(value interface{}) interface{} {
@@ -34,6 +32,9 @@ var (
 
 func scalarNameFromType(t reflect.Type) string {
 	scalarName := t.PkgPath() + "." + t.Name()
+	if t.Name() == "" {
+		scalarName = t.PkgPath() + ".interface"
+	}
 	scalarName = strings.ReplaceAll(scalarName, ".", "_")
 	scalarName = strings.ReplaceAll(scalarName, "/", "_")
 	scalarName = strings.ReplaceAll(scalarName, "-", "_")
@@ -277,11 +278,20 @@ func (loader *manager) graphByTypes(field reflect.Type) graphql.Output {
 func (loader *manager) mapScalarObject(t reflect.Type) graphql.Output {
 	keyType := cleanPtrType(t).Key()
 	valueType := cleanPtrType(t).Elem()
-	scalarName := "gomap_" + cleanPtrType(keyType).Name() + "_" + cleanPtrType(valueType).Name()
+	valueName := valueType.Name()
+	keyName := keyType.Name()
+	if keyName == "" {
+		keyName = "interface"
+	}
+	if valueName == "" {
+		valueName = "interface"
+	}
+
+	scalarName := "gomap_" + keyName + "_" + valueName
 	if _, ok := loader.baseScalarObject[scalarName]; !ok {
 		loader.baseScalarObject[scalarName] = graphql.NewScalar(graphql.ScalarConfig{
 			Name:        scalarName,
-			Description: "The `gomap_" + keyType.Name() + "_" + valueType.Name() + "` scalar type represents map[" + keyType.Name() + "]" + valueType.Name() + " data.",
+			Description: "The `gomap_" + keyName + "_" + valueName + "` scalar type represents map[" + keyName + "]" + valueName + " data.",
 			ParseValue: func(value interface{}) interface{} {
 				mapValue := reflect.MakeMap(cleanPtrType(t))
 				if value == nil {
@@ -331,11 +341,15 @@ func (loader *manager) mapScalarObject(t reflect.Type) graphql.Output {
 }
 
 func (loader *manager) arrayScalarObject(t reflect.Type, childType reflect.Type) graphql.Output {
-	scalarName := "goarray_" + childType.Name()
+	childName := childType.Name()
+	if childName == "" {
+		childName = "interface"
+	}
+	scalarName := "goarray_" + childName
 	if _, ok := loader.baseScalarObject[scalarName]; !ok {
 		loader.baseScalarObject[scalarName] = graphql.NewScalar(graphql.ScalarConfig{
 			Name:        scalarName,
-			Description: "The `goarray_" + childType.Name() + "` scalar type represents [n]" + childType.Name() + " data.",
+			Description: "The `goarray_" + childName + "` scalar type represents [n]" + childName + " data.",
 			ParseValue: func(value interface{}) interface{} {
 				arrayValue := reflect.New(reflect.ArrayOf(cleanPtrType(t).Len(), cleanPtrType(childType))).Elem()
 				jsonString := fmt.Sprintf("%v", value)
@@ -381,11 +395,15 @@ func (loader *manager) arrayScalarObject(t reflect.Type, childType reflect.Type)
 }
 
 func (loader *manager) sliceScalarObject(t reflect.Type, childType reflect.Type) graphql.Output {
-	scalarName := "goslice_" + childType.Name()
+	childName := childType.Name()
+	if childName == "" {
+		childName = "interface"
+	}
+	scalarName := "goslice_" + childName
 	if _, ok := loader.baseScalarObject[scalarName]; !ok {
 		loader.baseScalarObject[scalarName] = graphql.NewScalar(graphql.ScalarConfig{
 			Name:        scalarName,
-			Description: "The `goslice_" + childType.Name() + "` scalar type represents []" + childType.Name() + " data.",
+			Description: "The `goslice_" + childName + "` scalar type represents []" + childName + " data.",
 			ParseValue: func(value interface{}) interface{} {
 				sliceValue := reflect.New(reflect.SliceOf(childType)).Elem()
 				jsonString := fmt.Sprintf("%v", value)

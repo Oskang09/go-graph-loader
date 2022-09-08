@@ -17,6 +17,9 @@ func main() {
 		panic(err)
 	}
 
+	manager.WriteSchema("schema.json")
+	manager.WriteMagidoc("magidoc.mjs", "schema.json")
+
 	result := manager.Do().
 		Query(`{ 
 			products(cursor: "some nested cursor", type: "HA") {

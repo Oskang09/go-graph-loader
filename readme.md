@@ -113,6 +113,10 @@ func main() {
     // parameters with your own validator
     manager.RegisterValidator(nil)
 
+    // magidoc template generator
+    manager.WriteSchema("schema.json")
+    manager.WriteMagidoc("magidoc.mjs", "schema.json")
+
     result := manager.Do().
         Query("{ product { name } }"). // set your query string
         Root(map[string]interface{}{"value":"some root value"}). // (optional) set your root object
@@ -128,27 +132,5 @@ func main() {
 
 # Documentation Tools
 
-For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types, you can found it at [magicdoc.mjs](magidoc.mjs). You can generate magidoc using this cli `magidoc generate -f schema/magidoc.mjs`, and about generating the schema in JSON would have a check on official graphql documentation [Introspection](https://graphql.org/learn/introspection/)
-
-```js
-export default {
-    introspection: {
-        type: 'file',
-        location: 'schema/schema.json',
-    },
-    website: {
-        template: 'carbon-multi-page',
-        options: {
-            queryGenerationFactories: {
-                'GoMap': '{}',
-                'GoArray': '[]',
-                'RawString': '',
-                'GoStringer': '',
-            }
-        }
-    },
-}
-```
-
-![image](https://user-images.githubusercontent.com/15674107/188549352-83a1246b-4e2e-412e-b040-af1244f13454.png)
+For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types. You can generate magidoc using this cli `magidoc generate`, after you have start the server with `WriteSchema` and `WriteMagidoc` function.
 

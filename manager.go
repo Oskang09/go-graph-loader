@@ -1,7 +1,11 @@
 package ggl
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
 	"reflect"
+	"strings"
 
 	"github.com/graphql-go/graphql"
 )
@@ -31,10 +35,73 @@ func (loader *manager) RegisterSchema(resolver interface{}) error {
 	return nil
 }
 
-func (loader *manager) WriteMagidoc(folder string) error {
-	// introspection query
-	// queryGenerationFactories
-	// - loop through baseScalarObject & customScalarObject and set default value for baseScalarObject
+func (loader *manager) WriteSchema(file string) error {
+	result := graphql.Do(graphql.Params{
+		Schema:        loader.schema,
+		RequestString: introspectionQuery,
+	})
+
+	if result.HasErrors() {
+		return result.Errors[0]
+	}
+
+	bytes, err := json.Marshal(result.Data)
+	if err != nil {
+		return err
+	}
+
+	schemaFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+	defer schemaFile.Close()
+
+	_, err = schemaFile.Write(bytes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (loader *manager) WriteMagidoc(file string, schemaFile string) error {
+	magidocFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	if err != nil {
+		return err
+	}
+	defer magidocFile.Close()
+
+	options := make([]string, 0)
+	for name := range loader.baseScalarObject {
+		if strings.HasPrefix(name, "goarray_") || strings.HasPrefix(name, "goslice_") {
+			options = append(options, fmt.Sprintf("'%v': '[]'", name))
+		} else if strings.HasPrefix(name, "gomap_") {
+			options = append(options, fmt.Sprintf("'%v': '{}'", name))
+		}
+	}
+
+	configuration := fmt.Sprintf(`
+		export default {
+			introspection: {
+				type: 'file',
+				location: '%s',
+			},
+			website: {
+				template: 'carbon-multi-page',
+				options: {
+					queryGenerationFactories: {
+						'RawString': '',
+						'GoStringer': '',
+						%v
+					}
+				}
+			},
+		}
+	`, schemaFile, strings.Join(options, ",\n"))
+
+	_, err = magidocFile.Write([]byte(configuration))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
