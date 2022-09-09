@@ -26,6 +26,14 @@ type executor struct {
 	variablesValues map[string]interface{}
 }
 
+func (loader *manager) GraphKey(graphKey string) {
+	loader.graphKeyTag = graphKey
+}
+
+func (loader *manager) RootObjectKey(rootObjectKey string) {
+	loader.rootObjectKeyTag = rootObjectKey
+}
+
 func (loader *manager) GetSchema() graphql.Schema {
 	return loader.schema
 }
