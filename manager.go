@@ -26,6 +26,10 @@ type executor struct {
 	variablesValues map[string]interface{}
 }
 
+func (loader *manager) GetSchema() graphql.Schema {
+	return loader.schema
+}
+
 func (loader *manager) RegisterSchema(resolver interface{}) error {
 	schema, err := loader.graphSchema(resolver)
 	if err != nil {
