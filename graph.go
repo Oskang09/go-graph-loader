@@ -41,6 +41,10 @@ func scalarNameFromType(t reflect.Type) string {
 	return scalarName
 }
 
+func graphNameFromTag(tag reflect.StructTag, key string) string {
+	return strings.Split(tag.Get(key), ",")[0]
+}
+
 func (loader *manager) graphSchema(resolver interface{}) (graphql.Schema, error) {
 	rootQuery := graphql.Fields{}
 	val := reflect.ValueOf(resolver)
@@ -74,12 +78,12 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 		for i := 0; i < requestType.NumField(); i++ {
 			field := requestType.Field(i)
 
-			root := field.Tag.Get(loader.rootObjectKeyTag)
+			root := graphNameFromTag(field.Tag, loader.rootObjectKeyTag)
 			if root != "" {
 				rootLoaderArgs[root] = field.Name
 			}
 
-			gql := field.Tag.Get(loader.graphKeyTag)
+			gql := graphNameFromTag(field.Tag, loader.graphKeyTag)
 			if gql != "" {
 				fn, ac := loader.graphArgumentConfigByStructField(field)
 				if ac == nil {
@@ -151,7 +155,7 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 
 func (loader *manager) graphFieldByStructField(field reflect.StructField) (string, *graphql.Field) {
 	scalarType := loader.graphByTypes(field.Type)
-	graphKey := field.Tag.Get(loader.graphKeyTag)
+	graphKey := graphNameFromTag(field.Tag, loader.graphKeyTag)
 	if graphKey == "" {
 		return "", nil
 	}
@@ -160,7 +164,7 @@ func (loader *manager) graphFieldByStructField(field reflect.StructField) (strin
 
 func (loader *manager) graphArgumentConfigByStructField(field reflect.StructField) (string, *graphql.ArgumentConfig) {
 	scalarType := loader.graphByTypes(field.Type)
-	graphKey := field.Tag.Get(loader.graphKeyTag)
+	graphKey := graphNameFromTag(field.Tag, loader.graphKeyTag)
 	if graphKey == "" {
 		return "", nil
 	}
