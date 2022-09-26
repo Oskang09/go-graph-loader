@@ -84,7 +84,7 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 			}
 
 			gql := graphNameFromTag(field.Tag, loader.graphKeyTag)
-			if gql != "" {
+			if gql != "" && gql != "-" {
 				fn, ac := loader.graphArgumentConfigByStructField(field)
 				if ac == nil {
 					continue
@@ -156,7 +156,7 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 func (loader *manager) graphFieldByStructField(field reflect.StructField) (string, *graphql.Field) {
 	scalarType := loader.graphByTypes(field.Type)
 	graphKey := graphNameFromTag(field.Tag, loader.graphKeyTag)
-	if graphKey == "" {
+	if graphKey == "" || graphKey == "-" {
 		return "", nil
 	}
 	return graphKey, &graphql.Field{Name: field.Name, Type: scalarType}
@@ -165,7 +165,7 @@ func (loader *manager) graphFieldByStructField(field reflect.StructField) (strin
 func (loader *manager) graphArgumentConfigByStructField(field reflect.StructField) (string, *graphql.ArgumentConfig) {
 	scalarType := loader.graphByTypes(field.Type)
 	graphKey := graphNameFromTag(field.Tag, loader.graphKeyTag)
-	if graphKey == "" {
+	if graphKey == "" || graphKey == "-" {
 		return "", nil
 	}
 	return graphKey, &graphql.ArgumentConfig{Type: scalarType}
