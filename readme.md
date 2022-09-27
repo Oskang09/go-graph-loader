@@ -29,6 +29,16 @@ func (*Resolver) Product(context.Context, *ProductRequest) (responseType, error)
 
 For model definition by default we're not exposing all the fields only the fields with `gql` tagged will be exposed. Other than that we did support for field resolver or custom resolver which mean we can add extra function on model.
 
+
+# Supported Primitive Types
+
+```
+1. bool
+2. int
+3. float64
+4. string
+```
+
 ## Model Field Resolver
 
 As per model field resolver, we can overriding the original field resolver which just exposing the value, with this we can customize based on the source of value. For method signature as per [Tag & Method Signature](#tag--method-siganture) mentioned it can be only `context` value or with custom request arguments/

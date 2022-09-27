@@ -223,11 +223,10 @@ func (loader *manager) graphByTypes(field reflect.Type) graphql.Output {
 	case reflect.Bool:
 		return graphql.Boolean
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int:
 		return graphql.Int
 
-	case reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
+	case reflect.Float64:
 		return graphql.Float
 
 	case reflect.String:
