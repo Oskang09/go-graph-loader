@@ -2,7 +2,7 @@
 
 go graph loader is a plugin for load the grahql by resolver and process scalar type with go struct definition instead of schema typing, and come with some simple extension like validator.
 
-# Tag & Method Siganture
+# Tag & Method Signature
 
 In this plugin we're using `gql` as graphql key loader and `root` as root object arguments loader. And about method signature we're following as per below, the `responseType` will be ur model definition so in order to let us to generate graphql response schema as well.
 
@@ -24,6 +24,28 @@ func (*Resolver) Product(context.Context, *ProductRequest) (responseType, error)
 
 }
 ```
+
+
+### Pre Resolver Method Signature
+
+Pre resolver function mainly is let you can do injection on the context based on the response type, usually will use for context resolution for some high level ORM.
+
+```go
+type Resolver struct {}
+
+type responseType struct {}
+
+func (rt *responseType) PreResolver(ctx context.Context) context.Context {
+	log.Println("invoke preResolver")
+	return ctx
+}
+
+
+func (*Resolver) Product(context.Context) (responseType, error) {
+
+}
+```
+
 
 # Model Definition
 
@@ -145,7 +167,7 @@ func main() {
 We did provide the error footprint while having definition error or schema error, so would help you a lot when debugging the issues.
 
 
-## PreResolver Siganture Error
+### PreResolver Siganture Error
 
 ```
 2022/10/20 00:21:41 ————————————— Go Graph Loader —————————————
@@ -157,7 +179,7 @@ We did provide the error footprint while having definition error or schema error
 panic: go-graph-loader: invalid method signature is using for pre resolver function
 ```
 
-## Resolver Function Signature Error
+### Resolver Function Signature Error
 
 ```
 2022/10/20 00:18:03 ————————————— Go Graph Loader —————————————
