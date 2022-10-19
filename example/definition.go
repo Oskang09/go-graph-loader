@@ -33,6 +33,11 @@ type ProductNameArgs struct {
 	Test2 map[string]string `gql:"test2"`
 }
 
+func (product *Product) PreResolver(ctx context.Context) context.Context {
+	log.Println("invoke preResolver")
+	return ctx
+}
+
 func (product *Product) GGL_Name(ctx context.Context, args *ProductNameArgs) (string, error) {
 	return product.Name + "-with-resolver", nil
 }
@@ -67,7 +72,6 @@ type ProductArgs struct {
 
 func (resolver *Resolver) Product(ctx context.Context, args *ProductArgs) (*Product, error) {
 	// do the data fetching via service / db call
-	log.Println("test", args.Test)
 	product := new(Product)
 	product.ID = 1
 	product.Price = 3.2
