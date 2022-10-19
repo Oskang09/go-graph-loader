@@ -1,6 +1,7 @@
 package ggl
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -73,34 +74,51 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 	graphArgs := graphql.FieldConfigArgument{}
 	graphLoaderArgs := make(map[string]string)
 	rootLoaderArgs := make(map[string]string)
-	if method.Type.NumIn() == 3 {
-		requestType := cleanPtrType(methodType.In(2))
-		for i := 0; i < requestType.NumField(); i++ {
-			field := requestType.Field(i)
+	if (method.Type.NumIn() == 3 || method.Type.NumIn() == 2) &&
+		method.Type.NumOut() == 2 &&
+		checkIsContext(method.Type.In(1)) {
 
-			root := graphNameFromTag(field.Tag, loader.rootObjectKeyTag)
-			if root != "" {
-				rootLoaderArgs[root] = field.Name
-			}
+		if method.Type.NumIn() == 3 {
+			requestType := cleanPtrType(methodType.In(2))
+			for i := 0; i < requestType.NumField(); i++ {
+				field := requestType.Field(i)
 
-			gql := graphNameFromTag(field.Tag, loader.graphKeyTag)
-			if gql != "" && gql != "-" {
-				fn, ac := loader.graphArgumentConfigByStructField(field)
-				if ac == nil {
-					continue
+				root := graphNameFromTag(field.Tag, loader.rootObjectKeyTag)
+				if root != "" {
+					rootLoaderArgs[root] = field.Name
 				}
-				graphArgs[fn] = ac
-				graphLoaderArgs[gql] = field.Name
+
+				gql := graphNameFromTag(field.Tag, loader.graphKeyTag)
+				if gql != "" && gql != "-" {
+					fn, ac := loader.graphArgumentConfigByStructField(field)
+					if ac == nil {
+						continue
+					}
+					graphArgs[fn] = ac
+					graphLoaderArgs[gql] = field.Name
+				}
 			}
 		}
+
+	} else {
+		panicWithFootprint(
+			definitionTypeResolverMethod,
+			method.Type.In(0),
+			method.Func.Type(),
+			errInvalidMethodSignatureForFieldResolverFunction,
+		)
 	}
 
 	responseType := methodType.Out(0)
 	var graphOutput graphql.Output
+	var preResolver func(context.Context) context.Context
 	if root != nil {
+		resolver, fields := loader.graphFieldsByType(responseType)
+		preResolver = resolver
+
 		graphOutput = graphql.NewObject(graphql.ObjectConfig{
 			Name:   cleanPtrType(responseType).Name(),
-			Fields: loader.graphFieldsByType(responseType),
+			Fields: fields,
 		})
 	} else {
 		graphOutput = loader.graphByTypes(responseType)
@@ -114,7 +132,12 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 		} else {
 			rValues = append(rValues, reflect.ValueOf(p.Source))
 		}
-		rValues = append(rValues, reflect.ValueOf(p.Context))
+
+		resolverCtx := p.Context
+		if preResolver != nil {
+			resolverCtx = preResolver(resolverCtx)
+		}
+		rValues = append(rValues, reflect.ValueOf(resolverCtx))
 
 		if method.Type.NumIn() == 3 {
 			request := reflect.New(cleanPtrType(methodType.In(2)))
@@ -171,7 +194,7 @@ func (loader *manager) graphArgumentConfigByStructField(field reflect.StructFiel
 	return graphKey, &graphql.ArgumentConfig{Type: scalarType}
 }
 
-func (loader *manager) graphFieldsByType(ptrType reflect.Type) graphql.Fields {
+func (loader *manager) graphFieldsByType(ptrType reflect.Type) (resolver, graphql.Fields) {
 	outputType := cleanPtrType(ptrType)
 	graphFields := graphql.Fields{}
 
@@ -191,8 +214,29 @@ func (loader *manager) graphFieldsByType(ptrType reflect.Type) graphql.Fields {
 		graphFields[fn] = gf
 	}
 
+	var preResolver resolver
 	for j := 0; j < ptrType.NumMethod(); j++ {
 		field := ptrType.Method(j)
+		if field.Name == "PreResolver" {
+			rfn := field.Func
+			if rfn.Type().NumOut() == 1 &&
+				rfn.Type().NumIn() == 2 &&
+				checkIsContext(rfn.Type().Out(0)) &&
+				checkIsContext(rfn.Type().In(1)) {
+				preResolver = func(ctx context.Context) context.Context {
+					rsp := rfn.Call([]reflect.Value{reflect.New(cleanPtrType(ptrType)), reflect.ValueOf(ctx)})
+					return rsp[0].Interface().(context.Context)
+				}
+			} else {
+				panicWithFootprint(
+					definitionTypePreResolver,
+					ptrType,
+					rfn.Type(),
+					errInvalidMethodSignatureForPreResolverFunction,
+				)
+			}
+		}
+
 		if strings.HasPrefix(field.Name, "GGL_") {
 			if _, ok := reservedFields[field.Name]; !ok {
 				graphName := strcase.ToLowerCamel(strings.TrimPrefix(field.Name, "GGL_"))
@@ -207,7 +251,7 @@ func (loader *manager) graphFieldsByType(ptrType reflect.Type) graphql.Fields {
 		}
 	}
 
-	return graphFields
+	return preResolver, graphFields
 }
 
 func (loader *manager) graphByTypes(field reflect.Type) graphql.Output {
@@ -236,9 +280,10 @@ func (loader *manager) graphByTypes(field reflect.Type) graphql.Output {
 		safeField := cleanPtrType(field)
 		scalarName := scalarNameFromType(safeField)
 		if _, ok := loader.baseScalarObject[scalarName]; !ok {
+			_, fields := loader.graphFieldsByType(field)
 			loader.baseScalarObject[scalarName] = graphql.NewObject(graphql.ObjectConfig{
 				Name:   scalarName,
-				Fields: loader.graphFieldsByType(field),
+				Fields: fields,
 			})
 		}
 		return loader.baseScalarObject[scalarName]

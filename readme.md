@@ -140,6 +140,35 @@ func main() {
 }
 ```
 
+# Error & Debugging
+
+We did provide the error footprint while having definition error or schema error, so would help you a lot when debugging the issues.
+
+
+## PreResolver Siganture Error
+
+```
+2022/10/20 00:21:41 ————————————— Go Graph Loader —————————————
+2022/10/20 00:21:41 | Package   | main
+2022/10/20 00:21:41 | Struct    | Product
+2022/10/20 00:21:41 | Type      | PRE_RESOLVER
+2022/10/20 00:21:41 | Signature | func(*main.Product) context.Context
+2022/10/20 00:21:41 ———————————————————————————————————————————
+panic: go-graph-loader: invalid method signature is using for pre resolver function
+```
+
+## Resolver Function Signature Error
+
+```
+2022/10/20 00:18:03 ————————————— Go Graph Loader —————————————
+2022/10/20 00:18:03 | Package   | main
+2022/10/20 00:18:03 | Struct    | Product
+2022/10/20 00:18:03 | Type      | RESOLVER_METHOD
+2022/10/20 00:18:03 | Signature | func(*main.Product, *main.ProductNameArgs) (string, error)
+2022/10/20 00:18:03 ———————————————————————————————————————————
+panic: go-graph-loader: invalid method signature is using for field resolver function
+```
+
 # Documentation Tools
 
 For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types. You can generate magidoc using this cli `magidoc generate`, after you have start the server with `WriteSchema` and `WriteMagidoc` function.
