@@ -203,7 +203,6 @@ For documentating we will suggest go with [magidoc](https://magidoc.js.org/intro
 - [x] `PreResolver` to allow process context on Response Type
 - [x] Error Tracing Footprint
 - [ ] Allow generate schema for `Subscription` & `Mutation`
-- [ ] 
 - [ ] Add more examples & cookbook with some famous Go framework
 - [ ] Using AST Travesal to allow documentation on the Go model and reflect on Magidoc
 
