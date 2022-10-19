@@ -59,6 +59,9 @@ For model definition by default we're not exposing all the fields only the field
 2. int
 3. float64
 4. string
+5. slice
+6. array
+7. map
 ```
 
 ## Model Field Resolver
@@ -194,4 +197,13 @@ panic: go-graph-loader: invalid method signature is using for field resolver fun
 # Documentation Tools
 
 For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types. You can generate magidoc using this cli `magidoc generate`, after you have start the server with `WriteSchema` and `WriteMagidoc` function.
+
+# Development Roadmap
+
+- [x] `PreResolver` to allow process context on Response Type
+- [x] Error Tracing Footprint
+- [ ] Allow generate schema for `Subscription` & `Mutation`
+- [ ] 
+- [ ] Add more examples & cookbook with some famous Go framework
+- [ ] Using AST Travesal to allow documentation on the Go model and reflect on Magidoc
 
