@@ -2,7 +2,7 @@
 		export default {
 			introspection: {
 				type: 'file',
-				location: 'schema2/magidoc.mjs/schema.json',
+				location: 'schema.json',
 			},
 			website: {
 				template: 'carbon-multi-page',
@@ -10,10 +10,10 @@
 					queryGenerationFactories: {
 						'RawString': '',
 						'GoStringer': '',
-						'goarray_string': '[]',
-'gomap_string_string': '{}',
+						'gomap_string_string': '{}',
 'gomap_string_interface': '{}',
-'goslice_string': '[]'
+'goslice_string': '[]',
+'goarray_string': '[]'
 					}
 				}
 			},

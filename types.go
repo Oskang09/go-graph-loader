@@ -1,8 +1,12 @@
 package ggl
 
+import "context"
+
 type validator interface {
 	Validate(i interface{}) error
 }
+
+type resolver func(context.Context) context.Context
 
 const introspectionQuery = `
   query IntrospectionQuery {
