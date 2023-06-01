@@ -40,3 +40,7 @@ func cleanPtrType(val reflect.Type) reflect.Type {
 		val = val.Elem()
 	}
 }
+
+func checkIsContext(val reflect.Type) bool {
+	return val.PkgPath() == "context" && val.Name() == "Context"
+}

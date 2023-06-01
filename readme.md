@@ -2,7 +2,7 @@
 
 go graph loader is a plugin for load the grahql by resolver and process scalar type with go struct definition instead of schema typing, and come with some simple extension like validator.
 
-# Tag & Method Siganture
+# Tag & Method Signature
 
 In this plugin we're using `gql` as graphql key loader and `root` as root object arguments loader. And about method signature we're following as per below, the `responseType` will be ur model definition so in order to let us to generate graphql response schema as well.
 
@@ -25,6 +25,28 @@ func (*Resolver) Product(context.Context, *ProductRequest) (responseType, error)
 }
 ```
 
+
+### Pre Resolver Method Signature
+
+Pre resolver function mainly is let you can do injection on the context based on the response type, usually will use for context resolution for some high level ORM.
+
+```go
+type Resolver struct {}
+
+type responseType struct {}
+
+func (rt *responseType) PreResolver(ctx context.Context) context.Context {
+	log.Println("invoke preResolver")
+	return ctx
+}
+
+
+func (*Resolver) Product(context.Context) (responseType, error) {
+
+}
+```
+
+
 # Model Definition
 
 For model definition by default we're not exposing all the fields only the fields with `gql` tagged will be exposed. Other than that we did support for field resolver or custom resolver which mean we can add extra function on model.
@@ -37,6 +59,9 @@ For model definition by default we're not exposing all the fields only the field
 2. int
 3. float64
 4. string
+5. slice
+6. array
+7. map
 ```
 
 ## Model Field Resolver
@@ -140,19 +165,44 @@ func main() {
 }
 ```
 
+# Error & Debugging
+
+We did provide the error footprint while having definition error or schema error, so would help you a lot when debugging the issues.
+
+
+### PreResolver Siganture Error
+
+```
+2022/10/20 00:21:41 ————————————— Go Graph Loader —————————————
+2022/10/20 00:21:41 | Package   | main
+2022/10/20 00:21:41 | Struct    | Product
+2022/10/20 00:21:41 | Type      | PRE_RESOLVER
+2022/10/20 00:21:41 | Signature | func(*main.Product) context.Context
+2022/10/20 00:21:41 ———————————————————————————————————————————
+panic: go-graph-loader: invalid method signature is using for pre resolver function
+```
+
+### Resolver Function Signature Error
+
+```
+2022/10/20 00:18:03 ————————————— Go Graph Loader —————————————
+2022/10/20 00:18:03 | Package   | main
+2022/10/20 00:18:03 | Struct    | Product
+2022/10/20 00:18:03 | Type      | RESOLVER_METHOD
+2022/10/20 00:18:03 | Signature | func(*main.Product, *main.ProductNameArgs) (string, error)
+2022/10/20 00:18:03 ———————————————————————————————————————————
+panic: go-graph-loader: invalid method signature is using for field resolver function
+```
+
 # Documentation Tools
 
 For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types. You can generate magidoc using this cli `magidoc generate`, after you have start the server with `WriteSchema` and `WriteMagidoc` function.
 
-## Preview MagiDoc
+# Development Roadmap
 
-```
-$ magidoc preview -f {magidoc file}
-```
+- [x] `PreResolver` to allow process context on Response Type
+- [x] Error Tracing Footprint
+- [ ] Allow generate schema for `Subscription` & `Mutation`
+- [ ] Add more examples & cookbook with some famous Go framework
+- [ ] Using AST Travesal to allow documentation on the Go model and reflect on Magidoc
 
-
-## Generate MagiDoc
-
-```
-$ magidoc generate -f {magidoc file}
-```
