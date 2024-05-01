@@ -196,7 +196,7 @@ panic: go-graph-loader: invalid method signature is using for field resolver fun
 
 # Documentation Tools
 
-For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. But if you using this plugins you will need to specifiy some custom scalar type which we using to process some array, struct and anoymous types. You can generate magidoc using this cli `magidoc generate`, after you have start the server with `WriteSchema` and `WriteMagidoc` function.
+For documentating we will suggest go with [magidoc](https://magidoc.js.org/introduction/welcome) since they will build documentation based on your server's introspection query result. 
 
 # Development Roadmap
 

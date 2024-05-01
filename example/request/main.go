@@ -17,8 +17,8 @@ func main() {
 		panic(err)
 	}
 
-	manager.WriteSchema("schema.json")
-	manager.WriteMagidoc("magidoc.mjs", "schema.json")
+	// manager.WriteSchema("schema.json")
+	// manager.WriteMagidoc("magidoc.mjs", "schema.json")
 
 	result := manager.Do().
 		Query(`{ 
@@ -56,4 +56,5 @@ func main() {
 	}
 	bytes, _ := json.Marshal(result.Data)
 	log.Println(string(bytes))
+
 }
