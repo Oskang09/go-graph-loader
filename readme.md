@@ -56,8 +56,8 @@ For model definition by default we're not exposing all the fields only the field
 
 ```
 1. bool
-2. int
-3. float64
+2. int, int8, int16, int32, int64
+3. float32, float64
 4. string
 5. slice
 6. array
@@ -202,6 +202,8 @@ For documentating we will suggest go with [magidoc](https://magidoc.js.org/intro
 
 - [x] `PreResolver` to allow process context on Response Type
 - [x] Error Tracing Footprint
+- [x] Support int to int64, Support float32 to 64.
+- [ ] Support uint to uint64, need to specify custom scalar type since graphql doesn't have it
 - [ ] Allow generate schema for `Subscription` & `Mutation`
 - [ ] Add more examples & cookbook with some famous Go framework
 - [ ] Using AST Travesal to allow documentation on the Go model and reflect on Magidoc

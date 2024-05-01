@@ -144,7 +144,16 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 			for graphKey, goKey := range graphLoaderArgs {
 				if val, ok := p.Args[graphKey]; ok {
 					field := cleanPtrValue(request).FieldByName(goKey)
-					field.Set(reflect.ValueOf(val))
+					switch true {
+					case field.CanInt():
+						field.SetInt(reflect.ValueOf(val).Int())
+					case field.CanUint():
+						field.SetUint(reflect.ValueOf(val).Uint())
+					case field.CanFloat():
+						field.SetFloat(reflect.ValueOf(val).Float())
+					default:
+						field.Set(reflect.ValueOf(val))
+					}
 				}
 			}
 
@@ -153,7 +162,16 @@ func (loader *manager) graphResolverByMethod(root *reflect.Value, method reflect
 				for graphKey, goKey := range rootLoaderArgs {
 					if val, ok := rootObject[graphKey]; ok {
 						field := cleanPtrValue(request).FieldByName(goKey)
-						field.Set(reflect.ValueOf(val))
+						switch true {
+						case field.CanInt():
+							field.SetInt(reflect.ValueOf(val).Int())
+						case field.CanUint():
+							field.SetUint(reflect.ValueOf(val).Uint())
+						case field.CanFloat():
+							field.SetFloat(reflect.ValueOf(val).Float())
+						default:
+							field.Set(reflect.ValueOf(val))
+						}
 					}
 				}
 			}
@@ -267,10 +285,10 @@ func (loader *manager) graphByTypes(field reflect.Type) graphql.Output {
 	case reflect.Bool:
 		return graphql.Boolean
 
-	case reflect.Int:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return graphql.Int
 
-	case reflect.Float64:
+	case reflect.Float32, reflect.Float64:
 		return graphql.Float
 
 	case reflect.String:
